@@ -1,0 +1,39 @@
+name: Ruby
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Ruby ${{ matrix.ruby }}
+    strategy:
+      matrix:
+        ruby:
+          - '2.7'
+          - '3.0'
+          - '3.1'
+          - '3.2'
+          - '3.3'
+          - '3.4'
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: false
+      - uses: actions/checkout@v5
+        with:
+          repository: kenhys/fluent-auditify
+          path: fluent-auditify
+      - name: Run the default task
+        run: |
+          ls -1
+          (cd fluent-auditify && bundle install && rake build && find pkg | sort | tail -n 1 | xargs gem install)
+          bundle exec rake TESTOPTS='-v'
