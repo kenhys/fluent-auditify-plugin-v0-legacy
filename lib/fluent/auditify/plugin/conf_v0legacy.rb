@@ -3,7 +3,7 @@ require 'fluent/auditify/plugin/conf'
 require 'fluent/config/element'
 
 module Fluent::Auditify::Plugin
-  class V0Conf < Conf
+  class V0LegacyConf < Conf
     Fluent::Auditify::Plugin.register_conf('yaml', self)
 
     def supported_platform?
