@@ -2,6 +2,7 @@
 
 require_relative '../test_helper'
 require 'fluent/auditify/plugin/conf_v0legacy'
+require 'fluent/auditify/parsletutil'
 require 'tmpdir'
 
 class TestV0LegacyConf
@@ -14,12 +15,17 @@ class TestV0LegacyConf
   def parse(conf)
     @plugin.parse(conf)
   end
+
+  def transform(conf)
+    @plugin.transform(conf)
+  end
 end
 
 class Fluent::AuditifyConfV0LegacyTest < Test::Unit::TestCase
 
   setup do
     @plugin = TestV0LegacyConf.new
+    @util = Fluent::Auditify::ParsletUtil.new
   end
 
   teardown do
@@ -30,14 +36,18 @@ class Fluent::AuditifyConfV0LegacyTest < Test::Unit::TestCase
 
     test 'transform' do
       Dir.mktmpdir do |tmpdir|
-        Dir.glob('../fixtures/buffer/*.conf') do |conf|
+        Dir.glob('test/fixtures/buffer/*.conf') do |conf|
+          expected_path = File.join(File.dirname(conf), "#{File.basename(conf, '.conf')}.expected")
+
+          unless File.exist?(expected_path)
+            next
+          end
+
           FileUtils.cp(conf, tmpdir)
           path = File.join(tmpdir, File.basename(conf))
-          modified = @plugin.transform(path, {})
+          modified = @plugin.transform(path)
           @util.export(modified)
-          expected_path =File.join(File.dirname(conf), "#{File.basename(conf, '.conf')}.expected")
-          assert_equal(File.read(expected_path),
-                       File.read(File.join(tmpdir, File.basename(conf))))
+          assert_equal(File.read(expected_path), File.read(path))
         end
       end
     end
