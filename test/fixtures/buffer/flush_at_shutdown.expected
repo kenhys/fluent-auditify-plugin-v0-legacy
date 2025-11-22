@@ -1,0 +1,10 @@
+<system>
+  config_include_dir ""
+</system>
+
+<match *>
+  @type stdout
+  <buffer>
+    flush_at_shutdown
+  </buffer>
+</match>
