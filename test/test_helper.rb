@@ -13,3 +13,9 @@ include Fluent::Auditify::Helper::Test
 def test_fixture_path(path)
   File.join(File.expand_path('../fixtures', __FILE__), path)
 end
+
+def test_fixture_expected_path(path)
+  dir = File.dirname(path)
+  expected = "#{File.basename(path, '.conf')}.expected"
+  File.join(File.expand_path('../fixtures', __FILE__), dir, expected)
+end

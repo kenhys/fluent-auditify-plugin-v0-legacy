@@ -52,13 +52,7 @@ class Fluent::AuditifyConfV0LegacyTest < Test::Unit::TestCase
     test 'transform' do |data|
       conf = data
       Dir.mktmpdir do |tmpdir|
-        buffer_dir = File.dirname(test_fixture_path(conf))
-        expected_path = File.join(buffer_dir, "#{File.basename(conf, '.conf')}.expected")
-
-        unless File.exist?(expected_path)
-          next
-        end
-
+        expected_path = test_fixture_expected_path(conf)
         FileUtils.cp(test_fixture_path(conf), tmpdir)
         path = File.join(tmpdir, File.basename(conf))
         modified = @plugin.transform(path)
