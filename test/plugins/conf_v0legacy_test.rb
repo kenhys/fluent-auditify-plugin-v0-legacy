@@ -12,10 +12,6 @@ class TestV0LegacyConf
     @plugin.instance_variable_set(:@log, @logger)
   end
 
-  def parse(conf)
-    @plugin.parse(conf)
-  end
-
   def transform(conf)
     @plugin.transform(conf)
   end
@@ -32,23 +28,42 @@ class Fluent::AuditifyConfV0LegacyTest < Test::Unit::TestCase
     discard
   end
 
-  sub_test_case 'buffer' do
+  sub_test_case 'transform buffer' do
 
-    test 'transform' do
+    data(
+      'buffer/buffer_chunk_limit.conf' => 'buffer/buffer_chunk_limit.conf',
+      'buffer/buffer_queue_full_action.conf' => 'buffer/buffer_queue_full_action.conf',
+      'buffer/disable_retry_limit.conf' => 'buffer/disable_retry_limit.conf',
+      'buffer/timezone.conf' => 'buffer/timezone.conf',
+      'buffer/utc.conf' => 'buffer/utc.conf',
+      'buffer/buffer_path.conf' => 'buffer/buffer_path.conf',
+      'buffer/buffer_type.conf' => 'buffer/buffer_type.conf',
+      'buffer/flush_at_shutdown.conf' => 'buffer/flush_at_shutdown.conf',
+      'buffer/flush_interval.conf' => 'buffer/flush_interval.conf',
+      'buffer/localtime.conf' => 'buffer/localtime.conf',
+      'buffer/max_retry_wait.conf' => 'buffer/max_retry_wait.conf',
+      'buffer/num_threads.conf' => 'buffer/num_threads.conf',
+      'buffer/queued_chunk_flush_interval.conf' => 'buffer/queued_chunk_flush_interval.conf',
+      'buffer/retry_limit.conf' => 'buffer/retry_limit.conf',
+      'buffer/time_slice_format.conf' => 'buffer/time_slice_format.conf',
+      'buffer/time_slice_wait.conf' => 'buffer/time_slice_wait.conf',
+      'buffer/try_flush_interval.conf' => 'buffer/try_flush_interval.conf'
+    )
+    test 'transform' do |data|
+      conf = data
       Dir.mktmpdir do |tmpdir|
-        Dir.glob('test/fixtures/buffer/*.conf') do |conf|
-          expected_path = File.join(File.dirname(conf), "#{File.basename(conf, '.conf')}.expected")
+        buffer_dir = File.dirname(test_fixture_path(conf))
+        expected_path = File.join(buffer_dir, "#{File.basename(conf, '.conf')}.expected")
 
-          unless File.exist?(expected_path)
-            next
-          end
-
-          FileUtils.cp(conf, tmpdir)
-          path = File.join(tmpdir, File.basename(conf))
-          modified = @plugin.transform(path)
-          @util.export(modified)
-          assert_equal(File.read(expected_path), File.read(path))
+        unless File.exist?(expected_path)
+          next
         end
+
+        FileUtils.cp(test_fixture_path(conf), tmpdir)
+        path = File.join(tmpdir, File.basename(conf))
+        modified = @plugin.transform(path)
+        @util.export(modified)
+        assert_equal(File.read(expected_path), File.read(path))
       end
     end
   end
