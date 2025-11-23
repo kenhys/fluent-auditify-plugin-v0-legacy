@@ -22,11 +22,11 @@ module Fluent::Auditify::Plugin
 
     def transform(conf, options={})
       parser = Fluent::Auditify::Parser::V1ConfigParser.new
+      modified = nil
       begin
         object = parser.parse(File.read(conf))
-        object = Fluent::Auditify::Parser::V1ConfigParser.eval(object,
-                                                               base_dir: File.dirname(conf),
-                                                               path: File.basename(conf))
+        object = parser.eval(object, { base_dir: File.dirname(conf),
+                                       path: File.basename(conf) })
         modified = transform_buffer(object)
       rescue => e
         #puts e.parse_failure_cause.ascii_tree
